@@ -1,15 +1,20 @@
 from netmiko import ConnectHandler
+from getpass import getpass
 
-switch = {
+host = input("Switch IP or hostname: ")
+username = input("Username: ")
+password = getpass("Password: ")
+
+device = {
     "device_type": "cisco_ios",
-    "host": "devnetsandboxiosxec9k.cisco.com",
-    "username": "fernandalatorre.09",
-    "password": "h_mVg95j_t4UVIq"
+    "host": host,
+    "username": username,
+    "password": password
 }
 
-print("Conectando al switch...")
+print("Connecting to device...")
 
-connection = ConnectHandler(**switch)
+connection = ConnectHandler(**device)
 
 commands = [
     "hostname SWITCH_AUTOMATIZADO",
@@ -23,8 +28,8 @@ commands = [
 
 connection.send_config_set(commands)
 
-connection.send_command("write memory")
+connection.save_config()
 
-print("Configuración aplicada y guardada")
+print("Configuration applied successfully")
 
 connection.disconnect()
