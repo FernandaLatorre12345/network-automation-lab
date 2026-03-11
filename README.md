@@ -61,6 +61,7 @@ Install the required dependencies using:
 
 ```bash
 pip install -r requirements.txt
+```
 
 ## How to Run
 
@@ -69,6 +70,7 @@ Run the graphical interface:
 ```bash
 py frontend.py
 ```
+
 Alternatively, the automation script can be executed directly from the command line:
 
 ```bash
