@@ -15,7 +15,7 @@ This approach improves operational efficiency and ensures that VPN configuration
 
 The following architecture connects two remote sites through a secure IPsec VPN tunnel across the Internet.
 
-´´´bash
+```bash
 Site A (FortiGate)                    Site B (Palo Alto)
 ------------------                    -------------------
 LAN: 10.1.1.0/24                      LAN: 10.2.2.0/24
@@ -23,7 +23,7 @@ LAN: 10.1.1.0/24                      LAN: 10.2.2.0/24
         |                                      |
     FortiGate ----------- INTERNET ----------- Palo Alto
     WAN: 200.1.1.1                             WAN: 200.2.2.2
-´´´
+```
 
 The VPN tunnel allows encrypted communication between both internal networks.
 
@@ -35,30 +35,30 @@ Protected networks:
 ## 3. VPN Type
 
 The solution uses:
-´´´bash
+```bash
 IPsec Site-to-Site VPN
 IKE Version: IKEv2
-´´´
+```
 This type of VPN provides secure encrypted communication between two remote locations over untrusted networks such as the Internet.
 
 ## 4. VPN Security Parameters
 
 Phase 1 – IKE (Tunnel Establishment)
-´´´bash
+```bash
 Encryption: AES256
 Authentication: SHA256
 DH Group: 14
 IKE Version: IKEv2
 Authentication Method: Pre-Shared Key
 Lifetime: 28800 seconds
-´´´
-´´´bash
+```
+```bash
 Phase 2 – IPsec (Data Encryption)
 Encryption: AES256
 Authentication: SHA256
 Perfect Forward Secrecy (PFS): Enabled
 Lifetime: 3600 seconds
-´´´
+```
 Both peers must use identical parameters to successfully establish the tunnel.
 
 ## 5. Automation Strategy
@@ -77,11 +77,11 @@ Automation enables consistent deployment of configuration elements such as:
 Fortinet provides a REST API that allows programmatic configuration of firewall objects.
 
 Relevant endpoints include:
-´´´bash
+```bash
 /api/v2/cmdb/vpn.ipsec
 /api/v2/cmdb/system.interface
 /api/v2/cmdb/firewall.policy
-´´´
+```
 Authentication is typically performed using an API token.
 
 Automation tools that can be used include:
@@ -101,10 +101,11 @@ Example operations include:
 * Creating security policies
 
 Relevant API interfaces:
-´´´bash
+```bash
 XML API
 REST API (available in newer PAN-OS versions)
-´´´
+```
+
 Automation tools may include:
 
 * Python
@@ -162,25 +163,25 @@ The automation script should verify:
 Example commands:
 
 # FortiGate
-´´´bash
+```bash
 diagnose vpn tunnel list
 get vpn ipsec tunnel summary
-´´´
+```
 # Palo Alto
-´´´bash
+```bash
 show vpn ike-sa
 show vpn ipsec-sa
-´´´
+```
 
 # Connectivity Testing
 
 The automation system should perform connectivity tests between the protected networks.
 
 Example tests:
-´´´bash
+```bash
 ping 10.2.2.10 from Site A
 ping 10.1.1.10 from Site B
-´´´
+```
 If connectivity fails, the script should generate an alert indicating potential VPN issues.
 
 ## 8. Alert Handling
@@ -203,11 +204,11 @@ Alerts can be integrated with monitoring platforms such as:
 ## 9. Optional Automation Scripts
 
 Example scripts that could be included in the repository:
-´´´bash
+```bash
 vpn_deploy_fortigate.py
 vpn_deploy_paloalto.py
 vpn_validation_test.py
-´´´
+```
 These scripts would demonstrate how VPN configuration and validation can be automated using vendor APIs.
 
 ## 10. Connectivity Test Script (Optional)
