@@ -79,23 +79,19 @@ py switch_config.py
 
 The script will request:
 
-Device hostname or IP address
+* Device hostname or IP address
+* Username
+* Password
+* VLAN ID
+* VLAN Name
 
-Username
-
-Password
-
-VLAN ID
-
-VLAN Name
-
-Security Note
+## Security Note
 
 Device credentials are not stored in the script.
 
 Credentials are requested at runtime to prevent exposing sensitive information in the repository.
 
-Project Structure
+## Project Structure
 
 network-automation-lab
 │
@@ -105,6 +101,6 @@ network-automation-lab
 ├── requirements.txt
 └── vpn_automation_plan.md
 
-Purpose
+## Purpose
 
 This project demonstrates how network engineers can automate repetitive configuration tasks using Python and network automation libraries.
