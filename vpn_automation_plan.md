@@ -32,6 +32,10 @@ Protected networks:
 * Site A: 10.1.1.0/24
 * Site B: 10.2.2.0/24
 
+## VPN Topology Diagram
+
+![VPN Topology](images/vpn_topology.png)
+
 # 3. Tunnel Network
 
 The VPN will use a dedicated transit network for the tunnel interfaces.
