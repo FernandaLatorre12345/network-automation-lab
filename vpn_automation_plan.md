@@ -1,22 +1,24 @@
-# VPN Automation Plan
+# Plan de Automatización de VPN IPSec
 
-# 1. Objective
+# 1. Objetivo
 
-The objective of this plan is to automate the deployment and validation of an IPsec Site-to-Site VPN between two heterogeneous firewall platforms:
+El objetivo de este documento es describir un plan para automatizar la implementación y validación de una VPN IPSec Site-to-Site entre dos plataformas de firewall diferentes:
 
-* Fortinet FortiGate (Site A)
-* Palo Alto Networks Firewall (Site B)
+* Fortinet FortiGate (Sitio A)
+* Palo Alto Networks Firewall (Sitio B)
 
-The automation aims to reduce manual configuration errors, ensure consistent security parameters, and provide validation mechanisms after deployment.
+La automatización busca reducir errores de configuración manual, asegurar consistencia en los parámetros de seguridad y proporcionar mecanismos de validación luego del despliegue.
 
-This approach improves operational efficiency and ensures that VPN configurations remain consistent across different security platforms.
+Este enfoque mejora la eficiencia operativa y permite mantener configuraciones consistentes entre distintas plataformas de seguridad.
 
-# 2. Proposed Network Topology
+---
 
-The following architecture connects two remote sites through a secure IPsec VPN tunnel across the Internet.
+# 2. Topología de Red Propuesta
 
-```bash
-Site A (FortiGate)                    Site B (Palo Alto)
+La siguiente arquitectura conecta dos sitios remotos mediante un túnel VPN IPSec a través de Internet.
+
+```
+Sitio A (FortiGate)                   Sitio B (Palo Alto)
 ------------------                    -------------------
 LAN: 10.1.1.0/24                      LAN: 10.2.2.0/24
         |                                      |
@@ -25,243 +27,291 @@ LAN: 10.1.1.0/24                      LAN: 10.2.2.0/24
     WAN: 200.1.1.1                             WAN: 200.2.2.2
 ```
 
-The VPN tunnel allows encrypted communication between both internal networks.
+El túnel VPN permite la comunicación segura entre ambas redes internas.
 
-Protected networks:
+Redes protegidas:
 
-* Site A: 10.1.1.0/24
-* Site B: 10.2.2.0/24
+* Sitio A: 10.1.1.0/24
+* Sitio B: 10.2.2.0/24
 
-## VPN Topology Diagram
+## Diagrama de la Topología VPN
 
-![VPN Topology](images/vpn_topology.png)
+![Topología VPN](images/vpn_topology.png)
 
-# 3. Tunnel Network
+---
 
-The VPN will use a dedicated transit network for the tunnel interfaces.
+# 3. Red del Túnel
 
-Tunnel Network: 169.255.1.0/30
+La VPN utilizará una red de tránsito dedicada para las interfaces del túnel.
 
-FortiGate Tunnel IP: 169.255.1.1  
-Palo Alto Tunnel IP: 169.255.1.2
+Red del túnel:
 
-This tunnel network allows routing between both firewalls and is typically used in route-based VPN configurations.
+```
+169.255.1.0/30
+```
 
-# 4. VPN Type
+Asignación de direcciones:
 
-The solution uses:
-```bash
-IPsec Site-to-Site VPN
+* FortiGate: 169.255.1.1
+* Palo Alto: 169.255.1.2
+
+Esta red permite el enrutamiento entre ambos firewalls y se utiliza comúnmente en configuraciones de VPN basadas en interfaces (route-based VPN).
+
+---
+
+# 4. Tipo de VPN
+
+La solución utiliza:
+
+```
+VPN IPSec Site-to-Site
 IKE Version: IKEv2
 ```
-This type of VPN provides secure encrypted communication between two remote locations over untrusted networks such as the Internet.
 
-# 5. VPN Security Parameters
+Este tipo de VPN permite establecer comunicación cifrada y segura entre dos ubicaciones remotas a través de redes no confiables como Internet.
 
-Phase 1 – IKE (Tunnel Establishment)
-```bash
-Encryption: AES256
-Authentication: SHA256
-DH Group: 14
-IKE Version: IKEv2
-Authentication Method: Pre-Shared Key
-Lifetime: 28800 seconds
+---
+
+# 5. Parámetros de Seguridad de la VPN
+
+### Phase 1 – IKE (Establecimiento del túnel)
+
+```
+Encriptación: AES256
+Autenticación: SHA256
+Grupo DH: 14
+Versión IKE: IKEv2
+Método de autenticación: Pre-Shared Key
+Lifetime: 28800 segundos
 ```
 
-Phase 2 – IPsec (Data Encryption)
-```bash
-Encryption: AES256
-Authentication: SHA256
-Perfect Forward Secrecy (PFS): Group 14
-Lifetime: 3600 seconds
+### Phase 2 – IPSec (Cifrado del tráfico)
+
 ```
-Both peers must use identical parameters to successfully establish the tunnel.
+Encriptación: AES256
+Autenticación: SHA256
+Perfect Forward Secrecy (PFS): Grupo 14
+Lifetime: 3600 segundos
+```
 
-# 6. Automation Strategy
+Ambos extremos deben utilizar los mismos parámetros para que el túnel pueda establecerse correctamente.
 
-The automation strategy focuses on configuring the VPN using the official APIs provided by each vendor.
+---
 
-Automation enables consistent deployment of configuration elements such as:
+# 6. Estrategia de Automatización
 
-* IKE gateways
-* IPsec tunnels
-* security policies
-* routing entries
+La estrategia de automatización se basa en la utilización de las APIs oficiales proporcionadas por cada fabricante.
 
-## FortiGate Automation
+La automatización permite desplegar de forma consistente elementos como:
 
-Fortinet provides a REST API that allows programmatic configuration of firewall objects.
+* IKE Gateways
+* Túneles IPSec
+* Políticas de firewall
+* Rutas hacia las redes remotas
 
-Relevant endpoints include:
-```bash
+---
+
+## Automatización en FortiGate
+
+Fortinet proporciona una API REST que permite configurar objetos del firewall de forma programática.
+
+Algunos endpoints relevantes incluyen:
+
+```
 /api/v2/cmdb/vpn.ipsec
 /api/v2/cmdb/system.interface
 /api/v2/cmdb/firewall.policy
 ```
-Authentication is typically performed using an API token.
 
-Automation tools that can be used include:
+La autenticación normalmente se realiza mediante un API Token.
+
+Herramientas posibles para la automatización:
 
 * Python
 * Ansible
 * FortiOS REST API
 
-## Palo Alto Automation
+---
 
-Palo Alto firewalls expose an XML API that allows configuration and operational commands to be executed remotely.
+## Automatización en Palo Alto
 
-Example operations include:
+Los firewalls Palo Alto exponen una API XML que permite ejecutar configuraciones y comandos operativos de forma remota.
 
-* Creating IKE gateways
-* Creating IPsec tunnels
-* Creating security policies
+Ejemplos de operaciones incluyen:
 
-Relevant API interfaces:
-```bash
+* Crear IKE Gateways
+* Crear túneles IPSec
+* Crear políticas de seguridad
+
+Interfaces disponibles:
+
+```
 XML API
-REST API (available in newer PAN-OS versions)
+REST API (en versiones recientes de PAN-OS)
 ```
 
-Automation tools may include:
+Herramientas posibles:
 
 * Python
 * Ansible
 * Palo Alto XML API
 
-# 7. Automation Workflow
+---
 
-The automation process should follow a structured sequence to deploy the VPN configuration.
+# 7. Flujo de Automatización
 
-1. Load VPN parameters from a configuration file (IP addresses, subnets, security parameters).
-2. Validate input parameters:
-   - IP address format
-   - subnet definitions
-   - encryption compatibility between devices.
-3. Configure the FortiGate device:
-   - create Phase 1 interface
-   - create Phase 2 selectors
-   - configure tunnel interface
-   - configure firewall policy
-   - configure routing for the remote network.
-4. Configure the Palo Alto firewall:
-   - create IKE Gateway
-   - create Tunnel Interface
-   - create IPSec Tunnel
-   - configure security policies
-   - configure routing between networks.
-5. Commit configuration changes on the Palo Alto firewall.
-6. Perform validation checks to confirm tunnel establishment.
-7. Execute connectivity tests between protected networks.
-8. Generate alerts if validation fails.
+El proceso de automatización puede seguir la siguiente secuencia:
 
-# 8. Challenges in Heterogeneous Automation
+1. Cargar los parámetros de la VPN desde un archivo de configuración (direcciones IP, subredes, parámetros de seguridad).
+2. Validar los parámetros ingresados:
 
-Automating VPN configuration across different vendors introduces several challenges.
+   * formato de direcciones IP
+   * definición de subredes
+   * compatibilidad de algoritmos de cifrado entre dispositivos.
+3. Configurar el dispositivo FortiGate:
 
-## Different API Models
+   * crear Phase 1
+   * crear Phase 2
+   * configurar la interfaz de túnel
+   * crear políticas de firewall
+   * configurar rutas hacia la red remota.
+4. Configurar el firewall Palo Alto:
 
-FortiGate uses a REST-based API, while Palo Alto traditionally relies on an XML API.
+   * crear IKE Gateway
+   * crear interfaz de túnel
+   * crear túnel IPSec
+   * configurar políticas de seguridad
+   * configurar rutas entre redes.
+5. Aplicar los cambios de configuración en Palo Alto (commit).
+6. Ejecutar validaciones para confirmar el establecimiento del túnel.
+7. Realizar pruebas de conectividad entre las redes protegidas.
+8. Generar alertas si se detectan fallas.
 
-## Configuration Structure Differences
+---
 
-Each platform organizes VPN configuration differently.
+# 8. Desafíos en Automatización Multi-Vendor
 
-For example:
+Automatizar configuraciones entre dispositivos de diferentes fabricantes presenta varios desafíos.
 
-* FortiGate typically uses route-based VPN configurations with tunnel interfaces, while Palo Alto requires tunnel interfaces associated with security zones.
-* Palo Alto uses tunnel interfaces and security zones
+## Diferencias entre APIs
 
-## Parameter Compatibility
+FortiGate utiliza una API basada en REST, mientras que Palo Alto utiliza principalmente una API XML.
 
-Encryption algorithms, DH groups, and authentication settings must match on both devices.
+## Diferencias en la estructura de configuración
 
-Any mismatch will prevent tunnel establishment.
+Cada plataforma organiza la configuración de VPN de forma distinta.
 
-## Authentication Handling
+Por ejemplo:
 
-Automation systems must securely store and manage:
+* FortiGate suele utilizar configuraciones de VPN basadas en interfaces de túnel.
+* Palo Alto requiere interfaces de túnel asociadas a zonas de seguridad.
+
+## Compatibilidad de parámetros
+
+Los algoritmos de cifrado, grupos DH y parámetros de autenticación deben coincidir en ambos dispositivos.
+
+Cualquier diferencia puede impedir el establecimiento del túnel.
+
+## Manejo de autenticación
+
+Los sistemas de automatización deben manejar de forma segura:
 
 * API tokens
-* device credentials
-* authentication keys
+* credenciales de dispositivos
+* claves de autenticación
 
-Secure credential storage mechanisms should be used.
+---
 
-# 9. VPN Configuration Validation Strategy
+# 9. Estrategia de Validación
 
-After deployment, the automation system must verify that the VPN is correctly configured and operational.
+Luego de aplicar la configuración, el sistema de automatización debe verificar que la VPN esté correctamente establecida y operativa.
 
-Validation includes both configuration checks and connectivity tests.
+La validación incluye tanto verificaciones de configuración como pruebas de conectividad.
 
-## Configuration Validation
+## Validación de configuración
 
-The automation script should verify:
+El script de automatización debe verificar:
 
-* IKE gateway configuration
-* IPsec tunnel status
-* firewall policies allowing traffic
-* routing configuration between networks
+* configuración del IKE Gateway
+* estado del túnel IPSec
+* políticas de firewall permitiendo tráfico
+* rutas entre redes
 
-Example commands:
+Ejemplos de comandos:
 
-## FortiGate
-```bash
+### FortiGate
+
+```
 diagnose vpn tunnel list
 get vpn ipsec tunnel summary
 ```
-## Palo Alto
-```bash
+
+### Palo Alto
+
+```
 show vpn ike-sa
 show vpn ipsec-sa
 ```
 
-## Connectivity Testing
+---
 
-The automation system should perform connectivity tests between the protected networks.
+## Pruebas de conectividad
 
-Example tests:
-```bash
-ping 10.2.2.10 from Site A
-ping 10.1.1.10 from Site B
+El sistema de automatización debe realizar pruebas de conectividad entre las redes protegidas.
+
+Ejemplo:
+
 ```
-If connectivity fails, the script should generate an alert indicating potential VPN issues.
+ping 10.2.2.10 desde el Sitio A
+ping 10.1.1.10 desde el Sitio B
+```
 
-# 10. Alert Handling
+Si la conectividad falla, el sistema debe generar una alerta indicando posibles problemas en la VPN.
 
-If any validation step fails, the automation system should generate a clear alert indicating the problem.
+---
 
-Possible issues include:
+# 10. Manejo de Alertas
 
-* Tunnel not established
-* Incorrect VPN parameters
-* Routing misconfiguration
-* Firewall policy blocking traffic
+Si alguna validación falla, el sistema de automatización debe generar una alerta clara indicando el problema detectado.
 
-Alerts can be integrated with monitoring platforms such as:
+Posibles problemas:
+
+* el túnel no se establece
+* parámetros de VPN incorrectos
+* errores de ruteo
+* políticas de firewall bloqueando tráfico
+
+Las alertas pueden integrarse con plataformas de monitoreo como:
 
 * PRTG
 * Syslog
-* Email notifications
+* notificaciones por correo electrónico
 
-# 11. Optional Automation Scripts
+---
 
-Example scripts that could be included in the repository:
-```bash
+# 11. Scripts de Automatización (Opcional)
+
+Ejemplos de scripts incluidos en el repositorio:
+
+```
 deploy_vpn.py
 fortigate_vpn.py
 paloalto_vpn.py
 vpn_test.py
 ```
-These scripts would demonstrate how VPN configuration and validation can be automated using vendor APIs.
 
-# 12. Connectivity Test Script (Optional)
+Estos scripts demuestran cómo la configuración y validación de la VPN podrían automatizarse utilizando las APIs de los fabricantes.
 
-A simple Python script could be implemented to verify VPN connectivity.
+---
 
-Example logic:
+# 12. Script de Prueba de Conectividad (Opcional)
 
-1. Execute a ping from Site A to Site B.
-2. Verify response time and packet loss.
-3. Report success or failure of the connectivity test.
+Se puede implementar un script en Python para verificar la conectividad a través del túnel IPSec.
 
-This script could be used as part of an automated validation pipeline after VPN deployment.
+Lógica básica:
+
+1. Ejecutar un ping desde el Sitio A hacia el Sitio B.
+2. Verificar tiempo de respuesta y pérdida de paquetes.
+3. Reportar éxito o fallo en la prueba de conectividad.
+
+Este script podría integrarse dentro de un pipeline de validación automática luego del despliegue de la VPN.
