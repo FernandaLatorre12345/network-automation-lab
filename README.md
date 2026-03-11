@@ -1,114 +1,214 @@
-# Network Automation Lab
+# Challenge de Automatización de Redes
 
-This project demonstrates basic network automation using Python and Netmiko.
+Este repositorio contiene la solución a un challenge técnico orientado a la automatización de redes utilizando Python.
 
-The solution automates VLAN configuration on network devices and includes a simple graphical interface for user input. The script connects to a device via SSH, applies configuration changes, validates them, and generates a backup of the running configuration.
+El objetivo del proyecto es demostrar la capacidad de:
 
-## Features
+* Automatizar la configuración de dispositivos de red.
+* Implementar una interfaz gráfica para ingresar parámetros de configuración.
+* Validar automáticamente los cambios realizados.
+* Gestionar el proyecto utilizando Git.
+* Planificar la automatización de una VPN IPSec entre dispositivos de diferentes fabricantes.
 
-* SSH connection to a network device
-* Automated VLAN configuration
-* Hostname modification
-* Automatic configuration saving
-* Configuration validation
-* Backup of running configuration
-* Optional SFTP backup upload
-* Simple graphical frontend for user input
+El proyecto está dividido en dos partes.
 
-## Technologies Used
+---
 
-* Python
-* Netmiko
-* Paramiko (SFTP transfer)
-* Tkinter
-* SSH
-* Git
+# Parte 1 – Automatización de Switch Cisco con Frontend
 
-## Compatibility
+Se desarrolló una herramienta en Python que permite automatizar la configuración de un switch Cisco mediante una interfaz gráfica.
 
-This script uses Netmiko for SSH communication and can be adapted to work with any network device supported by Netmiko, including:
+El sistema permite ingresar los parámetros de configuración desde el frontend y aplicar automáticamente los cambios en el dispositivo a través de una conexión SSH.
 
-* Cisco IOS
-* Cisco IOS-XE
-* Cisco NX-OS
-* Arista EOS
-* Juniper JunOS
-* Palo Alto PAN-OS
-* Fortinet FortiOS
+## Funcionalidades
 
-The current implementation targets Cisco IOS-based devices.
+* Conexión SSH a dispositivos de red
+* Configuración automática de VLANs
+* Modificación del hostname del dispositivo
+* Guardado automático de la configuración
+* Validación de la configuración aplicada
+* Generación de backup de la configuración
+* Interfaz gráfica para ingreso de parámetros
 
-## Lab Environment
+## VLANs configuradas
 
-The automation was tested using the Cisco DevNet Catalyst 9000 Always-On Sandbox environment.
+El sistema permite configurar las siguientes VLANs:
 
-This sandbox provides access to a virtual Cisco IOS-XE switch that allows testing of automation and network programmability features.
+* VLAN 10 – VLAN_DATOS
+* VLAN 20 – VLAN_VOZ
+* VLAN 50 – VLAN_SEGURIDAD
 
-## Automation Workflow
+## Flujo de automatización
 
-User Input → Frontend → Automation Script → Network Device
+El flujo de funcionamiento del sistema es el siguiente:
 
-1. The user launches the graphical interface.
-2. The user enters device credentials and VLAN information.
-3. The frontend sends the information to the automation script.
-4. The script establishes an SSH connection using Netmiko.
-5. Configuration commands are applied to the device.
-6. The configuration is saved to the device.
-7. Validation commands confirm the configuration.
-8. A backup of the running configuration is created locally.
-9. Optionally, the backup can be uploaded to an SFTP server.
+Usuario → Interfaz gráfica → Script de automatización → Dispositivo de red
 
-## Installation
+1. El usuario ejecuta la interfaz gráfica.
+2. Ingresa los datos del dispositivo y los parámetros de configuración.
+3. El frontend envía la información al script de automatización.
+4. El script establece una conexión SSH utilizando Netmiko.
+5. Se aplican los comandos de configuración en el dispositivo.
+6. La configuración se guarda en el equipo.
+7. Se ejecutan comandos de validación.
+8. Se genera un backup de la configuración.
 
-Install the required dependencies using:
+---
+
+# Entorno de laboratorio
+
+La automatización fue probada utilizando el entorno de laboratorio:
+
+Cisco DevNet Catalyst 9000 Always-On Sandbox.
+
+Este laboratorio provee acceso a un switch Cisco IOS-XE virtual que permite probar automatización y funcionalidades de programabilidad de red.
+
+---
+
+# Instalación
+
+Clonar el repositorio:
+
+```bash
+git clone https://github.com/FernandaLatorre12345/network-automation-lab.git
+cd network-automation-lab
+```
+
+Instalar dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## How to Run
+---
 
-Run the graphical interface:
+# Ejecución
 
-```bash
-py frontend.py
-```
-
-Alternatively, the automation script can be executed directly from the command line:
+Para ejecutar la interfaz gráfica:
 
 ```bash
-py switch_config.py
+python frontend.py
 ```
 
-The script will request:
+También es posible ejecutar directamente el script de automatización:
 
-* Device hostname or IP address
-* Username
-* Password
-* New hostname
+```bash
+python switch_config.py
+```
+
+El sistema solicitará:
+
+* Dirección IP o hostname del dispositivo
+* Usuario
+* Contraseña
+* Nuevo hostname
 * VLAN ID
-* VLAN Name
+* Nombre de VLAN
 
-## Security Note
+---
 
-Device credentials are not stored in the script.
+# Evidencias de funcionamiento
 
-Credentials are requested at runtime to prevent exposing sensitive information in the repository.
+El repositorio incluye capturas de pantalla del funcionamiento del sistema en la carpeta:
 
-## Project Structure
+```
+screenshots/
+```
+
+Las capturas muestran:
+
+* Interfaz del frontend
+* Configuración aplicada en el dispositivo
+* Generación del backup de configuración
+
+---
+
+# Parte 2 – Plan de Automatización de VPN IPSec
+
+El repositorio también incluye un documento que describe el plan para automatizar la configuración de una VPN IPSec Site-to-Site entre dos plataformas de seguridad diferentes:
+
+* Fortinet FortiGate
+* Palo Alto Networks Firewall
+
+El documento describe:
+
+* Topología de red
+* Red del túnel VPN
+* Parámetros de seguridad IPSec (Phase 1 y Phase 2)
+* Estrategia de automatización utilizando APIs
+* Flujo de automatización
+* Desafíos de automatización en entornos multi-vendor
+* Estrategia de validación de la configuración
+* Manejo de alertas
+
+El documento completo se encuentra en:
+
+```
+vpn_automation_plan.md
+```
+
+---
+
+# Topología de la VPN
+
+El siguiente diagrama muestra la arquitectura de la VPN y la red de túnel utilizada.
+
+![Topología VPN](images/vpn_topology.png)
+
+---
+
+# Scripts de automatización (conceptuales)
+
+Se incluyen scripts de ejemplo que ilustran cómo podría implementarse la automatización de la VPN.
+
+```
+scripts/
+deploy_vpn.py
+fortigate_vpn.py
+paloalto_vpn.py
+vpn_test.py
+```
+
+Estos scripts muestran conceptualmente:
+
+* Flujo de automatización
+* Configuración por fabricante
+* Validación de conectividad
+
+---
+
+# Tecnologías utilizadas
+
+* Python
+* Netmiko
+* Paramiko (SFTP)
+* Tkinter
+* SSH
+* Git
+* Markdown
+
+---
+
+# Estructura del repositorio
 
 ```
 network-automation-lab
 │
 ├── README.md
-├── switch_config.py
-├── frontend.py
-├── requirements.txt
 ├── vpn_automation_plan.md
-└── screenshots/
+├── frontend.py
+├── switch_config.py
+├── requirements.txt
+│
+├── scripts/
+│
+├── screenshots/
+│
+└── images/
 ```
 
-## Purpose
+---
 
-This project demonstrates how network engineers can automate repetitive configuration tasks using Python and network automation libraries.
+# Autor
 
+Fernanda Latorre
