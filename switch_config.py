@@ -152,4 +152,3 @@ if __name__ == "__main__":
         upload_to_sftp(backup)
     else:
         print("Automation failed. No backup generated.")
-
