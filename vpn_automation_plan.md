@@ -1,122 +1,225 @@
-# VPN Automation Plan: Fortigate to Palo Alto
+### VPN Automation Plan
 
-## Overview
+## 1. Objective
 
-This document describes a proposed approach to automate the configuration of an IPSec VPN tunnel between a Fortigate firewall and a Palo Alto firewall.
+The objective of this plan is to automate the deployment and validation of an IPsec Site-to-Site VPN between two heterogeneous firewall platforms:
 
-The goal is to standardize VPN deployment and reduce manual configuration by leveraging automation through APIs and scripting.
+* Fortinet FortiGate (Site A)
+* Palo Alto Networks Firewall (Site B)
 
----
+The automation aims to reduce manual configuration errors, ensure consistent security parameters, and provide validation mechanisms after deployment.
 
-## Network Topology
+This approach improves operational efficiency and ensures that VPN configurations remain consistent across different security platforms.
 
-Fortigate Firewall
-Public IP: 200.1.1.1  
-Internal Network: 10.10.10.0/24
+## 2. Proposed Network Topology
 
-Palo Alto Firewall
-Public IP: 150.1.1.1  
-Internal Network: 192.168.10.0/24
+The following architecture connects two remote sites through a secure IPsec VPN tunnel across the Internet.
 
-VPN Tunnel Network:
-169.254.1.0/30
+´´´bash
+Site A (FortiGate)                    Site B (Palo Alto)
+------------------                    -------------------
+LAN: 10.1.1.0/24                      LAN: 10.2.2.0/24
+        |                                      |
+        |                                      |
+    FortiGate ----------- INTERNET ----------- Palo Alto
+    WAN: 200.1.1.1                             WAN: 200.2.2.2
+´´´
 
----
+The VPN tunnel allows encrypted communication between both internal networks.
 
-## VPN Parameters
+Protected networks:
 
-IKE Version: IKEv2  
-Authentication: Pre-Shared Key  
+* Site A: 10.1.1.0/24
+* Site B: 10.2.2.0/24
 
-Encryption: AES-256  
-Integrity: SHA-256  
-DH Group: 14  
+## 3. VPN Type
 
-Phase 1 Lifetime: 28800 seconds  
-Phase 2 Lifetime: 3600 seconds  
+The solution uses:
+´´´bash
+IPsec Site-to-Site VPN
+IKE Version: IKEv2
+´´´
+This type of VPN provides secure encrypted communication between two remote locations over untrusted networks such as the Internet.
 
----
+## 4. VPN Security Parameters
 
-## Automation Approach
+Phase 1 – IKE (Tunnel Establishment)
+´´´bash
+Encryption: AES256
+Authentication: SHA256
+DH Group: 14
+IKE Version: IKEv2
+Authentication Method: Pre-Shared Key
+Lifetime: 28800 seconds
+´´´
+´´´bash
+Phase 2 – IPsec (Data Encryption)
+Encryption: AES256
+Authentication: SHA256
+Perfect Forward Secrecy (PFS): Enabled
+Lifetime: 3600 seconds
+´´´
+Both peers must use identical parameters to successfully establish the tunnel.
 
-Automation would be implemented using Python scripts interacting with firewall APIs.
+## 5. Automation Strategy
 
-The process would follow these steps:
+The automation strategy focuses on configuring the VPN using the official APIs provided by each vendor.
 
-1. Authenticate to Fortigate API
-2. Authenticate to Palo Alto API
-3. Create network objects
-4. Configure IKE Phase 1 parameters
-5. Configure IPSec Phase 2 parameters
-6. Create tunnel interfaces
-7. Configure routing
-8. Create security policies
-9. Validate VPN status
+Automation enables consistent deployment of configuration elements such as:
 
----
+* IKE gateways
+* IPsec tunnels
+* security policies
+* routing entries
 
-## APIs and Tools
+# FortiGate Automation
 
-Automation would leverage the following technologies:
+Fortinet provides a REST API that allows programmatic configuration of firewall objects.
 
-- Python
-- REST APIs
-- Fortigate API
-- Palo Alto XML / REST API
-- JSON for configuration templates
+Relevant endpoints include:
+´´´bash
+/api/v2/cmdb/vpn.ipsec
+/api/v2/cmdb/system.interface
+/api/v2/cmdb/firewall.policy
+´´´
+Authentication is typically performed using an API token.
 
----
+Automation tools that can be used include:
 
-## Configuration Workflow
+* Python
+* Ansible
+* FortiOS REST API
 
-The automation script would perform the following actions:
+# Palo Alto Automation
 
-1. Define VPN parameters in a configuration template.
-2. Send API requests to the Fortigate firewall to create:
-   - Phase 1 interface
-   - Phase 2 selectors
-   - Tunnel interface
-3. Send API requests to the Palo Alto firewall to configure:
-   - IKE gateway
-   - IPSec tunnel
-   - Tunnel interface
-4. Apply security policies allowing traffic through the tunnel.
-5. Commit configuration on both devices.
+Palo Alto firewalls expose an XML API that allows configuration and operational commands to be executed remotely.
 
----
+Example operations include:
 
-## Validation
+* Creating IKE gateways
+* Creating IPsec tunnels
+* Creating security policies
 
-After deployment, the automation process should validate the tunnel status.
+Relevant API interfaces:
+´´´bash
+XML API
+REST API (available in newer PAN-OS versions)
+´´´
+Automation tools may include:
 
-Verification steps include:
+* Python
+* Ansible
+* Palo Alto XML API
 
-Fortigate:
-- diagnose vpn tunnel list
-- get vpn ipsec tunnel summary
+## 6. Challenges in Heterogeneous Automation
 
-Palo Alto:
-- show vpn ike-sa
-- show vpn ipsec-sa
+Automating VPN configuration across different vendors introduces several challenges.
 
-Additionally, connectivity tests should be performed:
+# Different API Models
 
-- ping between internal networks
-- traceroute through the tunnel
+FortiGate uses a REST-based API, while Palo Alto traditionally relies on an XML API.
 
----
+# Configuration Structure Differences
 
-## Benefits of Automation
+Each platform organizes VPN configuration differently.
 
-Automating VPN deployment provides several advantages:
+For example:
 
-- Faster VPN provisioning
-- Reduced configuration errors
-- Consistent configuration across devices
-- Easier scalability for large environments
+* FortiGate often uses policy-based VPN configurations
+* Palo Alto uses tunnel interfaces and security zones
 
----
+# Parameter Compatibility
 
-## Conclusion
+Encryption algorithms, DH groups, and authentication settings must match on both devices.
 
-Using APIs and automation tools such as Python enables efficient and scalable deployment of IPSec VPN tunnels between heterogeneous firewall vendors such as Fortigate and Palo Alto.
+Any mismatch will prevent tunnel establishment.
+
+# Authentication Handling
+
+Automation systems must securely store and manage:
+
+* API tokens
+* device credentials
+* authentication keys
+
+Secure credential storage mechanisms should be used.
+
+## 7. VPN Configuration Validation Strategy
+
+After deployment, the automation system must verify that the VPN is correctly configured and operational.
+
+Validation includes both configuration checks and connectivity tests.
+
+# Configuration Validation
+
+The automation script should verify:
+
+* IKE gateway configuration
+* IPsec tunnel status
+* firewall policies allowing traffic
+* routing configuration between networks
+
+Example commands:
+
+# FortiGate
+´´´bash
+diagnose vpn tunnel list
+get vpn ipsec tunnel summary
+´´´
+# Palo Alto
+´´´bash
+show vpn ike-sa
+show vpn ipsec-sa
+´´´
+
+# Connectivity Testing
+
+The automation system should perform connectivity tests between the protected networks.
+
+Example tests:
+´´´bash
+ping 10.2.2.10 from Site A
+ping 10.1.1.10 from Site B
+´´´
+If connectivity fails, the script should generate an alert indicating potential VPN issues.
+
+## 8. Alert Handling
+
+If any validation step fails, the automation system should generate a clear alert indicating the problem.
+
+Possible issues include:
+
+* Tunnel not established
+* Incorrect VPN parameters
+* Routing misconfiguration
+* Firewall policy blocking traffic
+
+Alerts can be integrated with monitoring platforms such as:
+
+* PRTG
+* Syslog
+* Email notifications
+
+## 9. Optional Automation Scripts
+
+Example scripts that could be included in the repository:
+´´´bash
+vpn_deploy_fortigate.py
+vpn_deploy_paloalto.py
+vpn_validation_test.py
+´´´
+These scripts would demonstrate how VPN configuration and validation can be automated using vendor APIs.
+
+## 10. Connectivity Test Script (Optional)
+
+A simple Python script could be implemented to verify VPN connectivity.
+
+Example logic:
+
+1 - Execute a ping from Site A to Site B.
+
+2 - Verify response time and packet loss.
+
+3 - Report success or failure of the connectivity test.
+
+This script could be used as part of an automated validation pipeline after VPN deployment.
