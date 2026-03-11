@@ -65,7 +65,9 @@ User Input → SSH Connection → Configuration Commands → Validation → Back
 
 Execute the script using:
 
-```py switch_config.py```
+```bash
+py switch_config.py
+```
 
 The script will request:
 
