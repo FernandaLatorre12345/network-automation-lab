@@ -1,4 +1,4 @@
-### VPN Automation Plan
+# VPN Automation Plan
 
 # 1. Objective
 
@@ -218,10 +218,8 @@ A simple Python script could be implemented to verify VPN connectivity.
 
 Example logic:
 
-1 - Execute a ping from Site A to Site B.
-
-2 - Verify response time and packet loss.
-
-3 - Report success or failure of the connectivity test.
+1. Execute a ping from Site A to Site B.
+2. Verify response time and packet loss.
+3. Report success or failure of the connectivity test.
 
 This script could be used as part of an automated validation pipeline after VPN deployment.
