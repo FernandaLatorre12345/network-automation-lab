@@ -6,33 +6,35 @@ The solution automates VLAN configuration on network devices and includes a simp
 
 ## Features
 
-- SSH connection to a network device
-- Automated VLAN configuration
-- Hostname modification
-- Automatic configuration saving
-- Configuration validation
-- Backup of running configuration
-- Simple graphical frontend for user input
+* SSH connection to a network device
+* Automated VLAN configuration
+* Hostname modification
+* Automatic configuration saving
+* Configuration validation
+* Backup of running configuration
+* Optional SFTP backup upload
+* Simple graphical frontend for user input
 
 ## Technologies Used
 
-- Python
-- Netmiko
-- Tkinter
-- SSH
-- Git
+* Python
+* Netmiko
+* Paramiko (SFTP transfer)
+* Tkinter
+* SSH
+* Git
 
 ## Compatibility
 
 This script uses Netmiko for SSH communication and can be adapted to work with any network device supported by Netmiko, including:
 
-- Cisco IOS
-- Cisco IOS-XE
-- Cisco NX-OS
-- Arista EOS
-- Juniper JunOS
-- Palo Alto PAN-OS
-- Fortinet FortiOS
+* Cisco IOS
+* Cisco IOS-XE
+* Cisco NX-OS
+* Arista EOS
+* Juniper JunOS
+* Palo Alto PAN-OS
+* Fortinet FortiOS
 
 The current implementation targets Cisco IOS-based devices.
 
@@ -51,9 +53,10 @@ User Input → Frontend → Automation Script → Network Device
 3. The frontend sends the information to the automation script.
 4. The script establishes an SSH connection using Netmiko.
 5. Configuration commands are applied to the device.
-6. The configuration is saved.
+6. The configuration is saved to the device.
 7. Validation commands confirm the configuration.
-8. A backup of the running configuration is created.
+8. A backup of the running configuration is created locally.
+9. Optionally, the backup can be uploaded to an SFTP server.
 
 ## Installation
 
@@ -82,6 +85,7 @@ The script will request:
 * Device hostname or IP address
 * Username
 * Password
+* New hostname
 * VLAN ID
 * VLAN Name
 
@@ -92,6 +96,7 @@ Device credentials are not stored in the script.
 Credentials are requested at runtime to prevent exposing sensitive information in the repository.
 
 ## Project Structure
+
 ```
 network-automation-lab
 │
@@ -99,8 +104,11 @@ network-automation-lab
 ├── switch_config.py
 ├── frontend.py
 ├── requirements.txt
-└── vpn_automation_plan.md
+├── vpn_automation_plan.md
+└── screenshots/
 ```
+
 ## Purpose
 
 This project demonstrates how network engineers can automate repetitive configuration tasks using Python and network automation libraries.
+
