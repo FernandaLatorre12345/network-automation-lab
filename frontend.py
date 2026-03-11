@@ -3,70 +3,80 @@ from tkinter import messagebox
 from switch_config import configure_switch
 
 
-def run_config():
+def run_automation():
 
-    host = host_entry.get()
-    username = username_entry.get()
-    password = password_entry.get()
-    hostname = hostname_entry.get()
-    vlan_id = vlan_entry.get()
-    vlan_name = name_entry.get()
+    host = entry_host.get()
+    username = entry_user.get()
+    password = entry_pass.get()
+    new_hostname = entry_hostname.get()
+    vlan_id = entry_vlan.get()
+    vlan_name = entry_vlan_name.get()
+
+    if not host or not username or not password:
+        messagebox.showerror("Input Error", "Please fill all required fields.")
+        return
 
     try:
-
         backup = configure_switch(
             host,
             username,
             password,
             vlan_id,
             vlan_name,
-            hostname
+            new_hostname
         )
 
-        messagebox.showinfo(
-            "Success",
-            f"Configuration applied.\nBackup file: {backup}"
-        )
+        if backup:
+            messagebox.showinfo(
+                "Automation Successful",
+                f"Configuration applied successfully.\n\nBackup created:\n{backup}"
+            )
+        else:
+            messagebox.showerror(
+                "Automation Failed",
+                "Automation failed.\nCheck device connectivity or credentials."
+            )
 
     except Exception as e:
-
         messagebox.showerror("Error", str(e))
 
 
 root = tk.Tk()
 root.title("Network Automation Tool")
+root.geometry("420x360")
 
 
-tk.Label(root, text="Device IP").grid(row=0, column=0)
-host_entry = tk.Entry(root)
-host_entry.grid(row=0, column=1)
+tk.Label(root, text="Device IP / Hostname").pack()
+entry_host = tk.Entry(root)
+entry_host.pack()
+
+tk.Label(root, text="Username").pack()
+entry_user = tk.Entry(root)
+entry_user.pack()
+
+tk.Label(root, text="Password").pack()
+entry_pass = tk.Entry(root, show="*")
+entry_pass.pack()
+
+tk.Label(root, text="New Hostname").pack()
+entry_hostname = tk.Entry(root)
+entry_hostname.pack()
+
+tk.Label(root, text="VLAN ID").pack()
+entry_vlan = tk.Entry(root)
+entry_vlan.pack()
+
+tk.Label(root, text="VLAN Name").pack()
+entry_vlan_name = tk.Entry(root)
+entry_vlan_name.pack()
 
 
-tk.Label(root, text="Username").grid(row=1, column=0)
-username_entry = tk.Entry(root)
-username_entry.grid(row=1, column=1)
+tk.Button(
+    root,
+    text="Run Automation",
+    command=run_automation,
+    bg="lightblue"
+).pack(pady=20)
 
-
-tk.Label(root, text="Password").grid(row=2, column=0)
-password_entry = tk.Entry(root, show="*")
-password_entry.grid(row=2, column=1)
-
-
-tk.Label(root, text="New Hostname").grid(row=3, column=0)
-hostname_entry = tk.Entry(root)
-hostname_entry.grid(row=3, column=1)
-
-
-tk.Label(root, text="VLAN ID").grid(row=4, column=0)
-vlan_entry = tk.Entry(root)
-vlan_entry.grid(row=4, column=1)
-
-
-tk.Label(root, text="VLAN Name").grid(row=5, column=0)
-name_entry = tk.Entry(root)
-name_entry.grid(row=5, column=1)
-
-
-tk.Button(root, text="Configure Switch", command=run_config).grid(row=6, column=1)
 
 root.mainloop()
