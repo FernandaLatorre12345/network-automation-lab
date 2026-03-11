@@ -1,7 +1,9 @@
 from netmiko import ConnectHandler
 from getpass import getpass
+from datetime import datetime
 
-host = input("Switch IP or hostname: ")
+# Request credentials from user
+host = input("Enter switch hostname or IP: ")
 username = input("Username: ")
 password = getpass("Password: ")
 
@@ -16,6 +18,7 @@ print("Connecting to device...")
 
 connection = ConnectHandler(**device)
 
+# Configuration commands
 commands = [
     "hostname SWITCH_AUTOMATIZADO",
     "vlan 10",
@@ -28,8 +31,33 @@ commands = [
 
 connection.send_config_set(commands)
 
+# Save configuration
 connection.save_config()
 
-print("Configuration applied successfully")
+print("Configuration applied and saved.")
+
+# Validation
+print("Validating configuration...")
+
+hostname_check = connection.send_command("show running-config | include hostname")
+vlan_check = connection.send_command("show vlan brief")
+
+print(hostname_check)
+print(vlan_check)
+
+# Backup running configuration
+print("Creating backup...")
+
+config = connection.send_command("show running-config")
+
+timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+filename = f"backup_{timestamp}.txt"
+
+with open(filename, "w") as file:
+    file.write(config)
+
+print(f"Backup saved as {filename}")
 
 connection.disconnect()
+
+print("Automation completed successfully.")
