@@ -1,6 +1,6 @@
 ### VPN Automation Plan
 
-## 1. Objective
+# 1. Objective
 
 The objective of this plan is to automate the deployment and validation of an IPsec Site-to-Site VPN between two heterogeneous firewall platforms:
 
@@ -11,7 +11,7 @@ The automation aims to reduce manual configuration errors, ensure consistent sec
 
 This approach improves operational efficiency and ensures that VPN configurations remain consistent across different security platforms.
 
-## 2. Proposed Network Topology
+# 2. Proposed Network Topology
 
 The following architecture connects two remote sites through a secure IPsec VPN tunnel across the Internet.
 
@@ -32,7 +32,7 @@ Protected networks:
 * Site A: 10.1.1.0/24
 * Site B: 10.2.2.0/24
 
-## 3. VPN Type
+# 3. VPN Type
 
 The solution uses:
 ```bash
@@ -41,7 +41,7 @@ IKE Version: IKEv2
 ```
 This type of VPN provides secure encrypted communication between two remote locations over untrusted networks such as the Internet.
 
-## 4. VPN Security Parameters
+# 4. VPN Security Parameters
 
 Phase 1 – IKE (Tunnel Establishment)
 ```bash
@@ -62,7 +62,7 @@ Lifetime: 3600 seconds
 ```
 Both peers must use identical parameters to successfully establish the tunnel.
 
-## 5. Automation Strategy
+# 5. Automation Strategy
 
 The automation strategy focuses on configuring the VPN using the official APIs provided by each vendor.
 
@@ -73,7 +73,7 @@ Automation enables consistent deployment of configuration elements such as:
 * security policies
 * routing entries
 
-# FortiGate Automation
+## FortiGate Automation
 
 Fortinet provides a REST API that allows programmatic configuration of firewall objects.
 
@@ -91,7 +91,7 @@ Automation tools that can be used include:
 * Ansible
 * FortiOS REST API
 
-# Palo Alto Automation
+## Palo Alto Automation
 
 Palo Alto firewalls expose an XML API that allows configuration and operational commands to be executed remotely.
 
@@ -113,15 +113,15 @@ Automation tools may include:
 * Ansible
 * Palo Alto XML API
 
-## 6. Challenges in Heterogeneous Automation
+# 6. Challenges in Heterogeneous Automation
 
 Automating VPN configuration across different vendors introduces several challenges.
 
-# Different API Models
+## Different API Models
 
 FortiGate uses a REST-based API, while Palo Alto traditionally relies on an XML API.
 
-# Configuration Structure Differences
+## Configuration Structure Differences
 
 Each platform organizes VPN configuration differently.
 
@@ -130,13 +130,13 @@ For example:
 * FortiGate often uses policy-based VPN configurations
 * Palo Alto uses tunnel interfaces and security zones
 
-# Parameter Compatibility
+## Parameter Compatibility
 
 Encryption algorithms, DH groups, and authentication settings must match on both devices.
 
 Any mismatch will prevent tunnel establishment.
 
-# Authentication Handling
+## Authentication Handling
 
 Automation systems must securely store and manage:
 
@@ -146,13 +146,13 @@ Automation systems must securely store and manage:
 
 Secure credential storage mechanisms should be used.
 
-## 7. VPN Configuration Validation Strategy
+# 7. VPN Configuration Validation Strategy
 
 After deployment, the automation system must verify that the VPN is correctly configured and operational.
 
 Validation includes both configuration checks and connectivity tests.
 
-# Configuration Validation
+## Configuration Validation
 
 The automation script should verify:
 
@@ -163,18 +163,18 @@ The automation script should verify:
 
 Example commands:
 
-# FortiGate
+## FortiGate
 ```bash
 diagnose vpn tunnel list
 get vpn ipsec tunnel summary
 ```
-# Palo Alto
+## Palo Alto
 ```bash
 show vpn ike-sa
 show vpn ipsec-sa
 ```
 
-# Connectivity Testing
+## Connectivity Testing
 
 The automation system should perform connectivity tests between the protected networks.
 
@@ -185,7 +185,7 @@ ping 10.1.1.10 from Site B
 ```
 If connectivity fails, the script should generate an alert indicating potential VPN issues.
 
-## 8. Alert Handling
+# 8. Alert Handling
 
 If any validation step fails, the automation system should generate a clear alert indicating the problem.
 
@@ -202,7 +202,7 @@ Alerts can be integrated with monitoring platforms such as:
 * Syslog
 * Email notifications
 
-## 9. Optional Automation Scripts
+# 9. Optional Automation Scripts
 
 Example scripts that could be included in the repository:
 ```bash
@@ -212,7 +212,7 @@ vpn_validation_test.py
 ```
 These scripts would demonstrate how VPN configuration and validation can be automated using vendor APIs.
 
-## 10. Connectivity Test Script (Optional)
+# 10. Connectivity Test Script (Optional)
 
 A simple Python script could be implemented to verify VPN connectivity.
 
