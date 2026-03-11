@@ -20,6 +20,14 @@ The script connects to a network device via SSH and automatically applies config
 - SSH
 - Git
 
+## Installation
+
+Install the required dependencies using:
+
+```bash
+pip install -r requirements.txt
+```
+
 ## Compatibility
 
 This script uses Netmiko for SSH communication and can be adapted to work with any network device supported by Netmiko, including:
