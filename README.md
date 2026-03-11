@@ -67,7 +67,21 @@ Este laboratorio provee acceso a un switch Cisco IOS-XE virtual que permite prob
 
 # Instalación
 
-Clonar el repositorio:
+## Requisitos previos
+
+Antes de ejecutar el proyecto es necesario tener instalados:
+
+* **Python 3.9 o superior**
+* **Git**
+
+Para verificar la instalación:
+```bash
+python --version
+git --version
+```
+Si ambos comandos muestran una versión instalada, el entorno está listo para ejecutar el proyecto.
+
+## Clonar el repositorio:
 
 ```bash
 git clone https://github.com/FernandaLatorre12345/network-automation-lab.git
