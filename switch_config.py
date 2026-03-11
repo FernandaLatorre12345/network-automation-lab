@@ -1,63 +1,66 @@
 from netmiko import ConnectHandler
-from getpass import getpass
 from datetime import datetime
 
-# Request credentials from user
-host = input("Enter switch hostname or IP: ")
-username = input("Username: ")
-password = getpass("Password: ")
 
-device = {
-    "device_type": "cisco_ios",
-    "host": host,
-    "username": username,
-    "password": password
-}
+def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname):
 
-print("Connecting to device...")
+    device = {
+        "device_type": "cisco_ios",
+        "host": host,
+        "username": username,
+        "password": password
+    }
 
-connection = ConnectHandler(**device)
+    connection = ConnectHandler(**device)
 
-# Configuration commands
-commands = [
-    "hostname SWITCH_AUTOMATIZADO",
-    "vlan 10",
-    "name VLAN_DATOS",
-    "vlan 20",
-    "name VLAN_VOZ",
-    "vlan 50",
-    "name VLAN_SEGURIDAD"
-]
+    commands = [
+        f"hostname {new_hostname}",
+        f"vlan {vlan_id}",
+        f"name {vlan_name}"
+    ]
 
-connection.send_config_set(commands)
+    connection.send_config_set(commands)
+    connection.save_config()
 
-# Save configuration
-connection.save_config()
+    print("Configuration applied successfully")
 
-print("Configuration applied and saved.")
+    hostname_check = connection.send_command("show running-config | include hostname")
+    vlan_check = connection.send_command("show vlan brief")
 
-# Validation
-print("Validating configuration...")
+    print("\nValidation:")
+    print(hostname_check)
+    print(vlan_check)
 
-hostname_check = connection.send_command("show running-config | include hostname")
-vlan_check = connection.send_command("show vlan brief")
+    config = connection.send_command("show running-config")
 
-print(hostname_check)
-print(vlan_check)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    filename = f"backup_{timestamp}.txt"
 
-# Backup running configuration
-print("Creating backup...")
+    with open(filename, "w") as file:
+        file.write(config)
 
-config = connection.send_command("show running-config")
+    connection.disconnect()
 
-timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-filename = f"backup_{timestamp}.txt"
+    return filename
 
-with open(filename, "w") as file:
-    file.write(config)
 
-print(f"Backup saved as {filename}")
+if __name__ == "__main__":
 
-connection.disconnect()
+    host = input("Enter switch hostname or IP: ")
+    username = input("Username: ")
+    password = input("Password: ")
+    new_hostname = input("New hostname: ")
+    vlan_id = input("VLAN ID: ")
+    vlan_name = input("VLAN Name: ")
 
-print("Automation completed successfully.")
+    backup = configure_switch(
+        host,
+        username,
+        password,
+        vlan_id,
+        vlan_name,
+        new_hostname
+    )
+
+    print(f"\nBackup saved: {backup}")
+
