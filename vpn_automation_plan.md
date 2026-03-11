@@ -52,8 +52,9 @@ IKE Version: IKEv2
 Authentication Method: Pre-Shared Key
 Lifetime: 28800 seconds
 ```
-```bash
+
 Phase 2 – IPsec (Data Encryption)
+```bash
 Encryption: AES256
 Authentication: SHA256
 Perfect Forward Secrecy (PFS): Enabled
