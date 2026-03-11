@@ -92,7 +92,7 @@ Device credentials are not stored in the script.
 Credentials are requested at runtime to prevent exposing sensitive information in the repository.
 
 ## Project Structure
-
+```
 network-automation-lab
 │
 ├── README.md
@@ -100,7 +100,7 @@ network-automation-lab
 ├── frontend.py
 ├── requirements.txt
 └── vpn_automation_plan.md
-
+```
 ## Purpose
 
 This project demonstrates how network engineers can automate repetitive configuration tasks using Python and network automation libraries.
