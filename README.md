@@ -35,7 +35,7 @@ The script was tested using the Cisco DevNet Catalyst 9000 Always-On Sandbox env
 
 Execute the script using:
 
-py switch_config.py
+```py switch_config.py```
 
 The script will request:
 
@@ -47,4 +47,3 @@ The script will request:
 
 This project demonstrates how network engineers can automate repetitive configuration tasks using Python and network automation libraries.
 
-This project demonstrates how network engineers can automate repetitive configuration tasks using Python and network automation libraries.
