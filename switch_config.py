@@ -1,19 +1,25 @@
 from netmiko import ConnectHandler
+from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException
 from datetime import datetime
 import paramiko
+import getpass
 
 
 def upload_to_sftp(local_file):
+    """
+    Optionally uploads the generated backup file to a remote SFTP server.
+    The user is prompted for SFTP credentials and destination directory.
+    """
 
     choice = input("\nDo you want to upload the backup to an SFTP server? (yes/no): ").lower()
 
-    if choice != "yes":
+    if choice not in ["yes", "y"]:
         print("Skipping SFTP upload.")
         return
 
     sftp_server = input("Enter SFTP server IP: ")
     sftp_user = input("Enter SFTP username: ")
-    sftp_password = input("Enter SFTP password: ")
+    sftp_password = getpass.getpass("Enter SFTP password: ")
     remote_dir = input("Enter remote directory (default /backups): ")
 
     if remote_dir == "":
@@ -39,6 +45,11 @@ def upload_to_sftp(local_file):
 
 
 def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname):
+    """
+    Connects to a network switch via SSH using Netmiko.
+    Applies hostname and VLAN configuration, validates the changes,
+    and generates a local backup of the running configuration.
+    """
 
     device = {
         "device_type": "cisco_ios",
@@ -47,7 +58,21 @@ def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname)
         "password": password
     }
 
-    connection = ConnectHandler(**device)
+    try:
+        connection = ConnectHandler(**device)
+        print("Connected to device.")
+
+    except NetmikoTimeoutException:
+        print("ERROR: Device unreachable or SSH not responding.")
+        return None
+
+    except NetmikoAuthenticationException:
+        print("ERROR: Authentication failed. Check username/password.")
+        return None
+
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        return None
 
     commands = [
         f"hostname {new_hostname}",
@@ -100,9 +125,15 @@ def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname)
 
 if __name__ == "__main__":
 
+    """
+    Main execution block.
+    Collects user input and executes the automation workflow.
+    """
+
     host = input("Enter switch hostname or IP: ")
     username = input("Username: ")
-    password = input("Password: ")
+    password = getpass.getpass("Password: ")
+
     new_hostname = input("New hostname: ")
     vlan_id = input("VLAN ID: ")
     vlan_name = input("VLAN Name: ")
@@ -116,6 +147,9 @@ if __name__ == "__main__":
         new_hostname
     )
 
-    print(f"\nBackup saved: {backup}")
+    if backup:
+        print(f"\nBackup saved: {backup}")
+        upload_to_sftp(backup)
+    else:
+        print("Automation failed. No backup generated.")
 
-    upload_to_sftp(backup)
