@@ -7,8 +7,7 @@ import getpass
 
 def upload_to_sftp(local_file):
     """
-    Optionally uploads the generated backup file to a remote SFTP server.
-    The user is prompted for SFTP credentials and destination directory.
+    Optionally uploads the generated backup file to an SFTP server.
     """
 
     choice = input("\nDo you want to upload the backup to an SFTP server? (yes/no): ").lower()
@@ -46,16 +45,16 @@ def upload_to_sftp(local_file):
 
 def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname):
     """
-    Connects to a network switch via SSH using Netmiko.
-    Applies hostname and VLAN configuration, validates the changes,
-    and generates a local backup of the running configuration.
+    Connects to the switch, configures hostname and VLAN,
+    validates the configuration and generates a backup.
     """
 
     device = {
         "device_type": "cisco_ios",
         "host": host,
         "username": username,
-        "password": password
+        "password": password,
+        "global_delay_factor": 2
     }
 
     try:
@@ -63,32 +62,43 @@ def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname)
         print("Connected to device.")
 
     except NetmikoTimeoutException:
-        print("ERROR: Device unreachable or SSH not responding.")
+        print("ERROR: Device unreachable or SSH timeout.")
         return None
 
     except NetmikoAuthenticationException:
-        print("ERROR: Authentication failed. Check username/password.")
+        print("ERROR: Authentication failed.")
         return None
 
     except Exception as e:
         print(f"Unexpected error: {e}")
         return None
 
-    commands = [
-        f"hostname {new_hostname}",
-        f"vlan {vlan_id}",
-        f"name {vlan_name}"
-    ]
+    try:
 
-    connection.send_config_set(commands)
-    connection.save_config()
+        commands = [
+            f"hostname {new_hostname}",
+            f"vlan {vlan_id}",
+            f"name {vlan_name}"
+        ]
 
-    print("Configuration applied successfully")
+        connection.send_config_set(commands)
+
+        # Refresh prompt after hostname change
+        connection.set_base_prompt()
+
+        connection.save_config()
+
+        print("Configuration applied successfully")
+
+    except Exception as e:
+        print(f"Configuration failed: {e}")
+        connection.disconnect()
+        return None
+
+    print("\nValidation:")
 
     hostname_check = connection.send_command("show running-config | include hostname")
     vlan_check = connection.send_command("show vlan brief")
-
-    print("\nValidation:")
 
     alerts = []
 
@@ -107,6 +117,7 @@ def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname)
         print(hostname_check.strip())
         print(f"VLAN {vlan_id} {vlan_name} present")
 
+    # Backup running config
     config = connection.send_command("show running-config")
 
     hostname_output = connection.send_command("show running-config | include hostname")
@@ -126,8 +137,7 @@ def configure_switch(host, username, password, vlan_id, vlan_name, new_hostname)
 if __name__ == "__main__":
 
     """
-    Main execution block.
-    Collects user input and executes the automation workflow.
+    Main execution block for CLI usage.
     """
 
     host = input("Enter switch hostname or IP: ")
